@@ -39,7 +39,7 @@ namespace Business.Persistence_Layer
                 command.Parameters.AddWithValue("cafeid", _cafe.Id);
                 var stockDataReader = command.ExecuteReader();
                 while (stockDataReader.Read())
-                    _cafe.Stocks.Add(new Stock(Convert.ToString(stockDataReader["stockdescription"])));
+                    _cafe.Stocks.Add(new Stock(Convert.ToInt32(stockDataReader["id"]), Convert.ToString(stockDataReader["stockdescription"])));
 
                 Console.WriteLine($"Cafe {_cafe.Description} has {_cafe.Stocks.Count} diffrent stocks");
 
@@ -73,6 +73,19 @@ namespace Business.Persistence_Layer
             command.Parameters.AddWithValue("id", cafe.Id);
             command.Parameters.AddWithValue("description", cafe.Description);
             
+            connection.Open();
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
+
+        internal void DeleteCafeFromDb(Cafe cafe)
+        {
+            var connection = new MySqlConnection(_connectionString);
+            var command = new MySqlCommand(
+                "DELETE FROM cafe " +
+                "WHERE id=@id", connection);
+            command.Parameters.AddWithValue("id", cafe.Id);
+
             connection.Open();
             command.ExecuteNonQuery();
             connection.Close();

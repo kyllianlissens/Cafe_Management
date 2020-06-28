@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Business.Domain_Layer;
+using Business.Domain_Layer.Repositories;
 using MySql.Data.MySqlClient;
 
 namespace Business.Persistence_Layer
@@ -36,7 +37,8 @@ namespace Business.Persistence_Layer
                     Convert.ToInt32(dataReader["id"]),
                     Convert.ToDouble(dataReader["saleprice"]),
                     Convert.ToString(dataReader["description"]),
-                    Convert.ToDouble(dataReader["purchaseprice"])
+                    Convert.ToDouble(dataReader["purchaseprice"]),
+                    StockRepository.Items.Find(x=> x.Id == Convert.ToInt32(dataReader["stock_stock_id"]))
                 );
                 Console.WriteLine($"Adding product: {_product.Id}: {_product.Description}");
                 products.Add(_product);
@@ -48,21 +50,47 @@ namespace Business.Persistence_Layer
         {
             var connection = new MySqlConnection(_connectionString);
             var command = new MySqlCommand(
-                "INSERT INTO cafe (id, stock_stock_id, description, purchaseprice, saleprice) " +
+                "INSERT INTO product (id, stock_stock_id, description, purchaseprice, saleprice) " +
                 "VALUES (@id, @stockid, @description, @purchaseprice, @saleprice)", connection);
             command.Parameters.AddWithValue("id", product.Id);
             command.Parameters.AddWithValue("description", product.Description);
-            command.Parameters.AddWithValue("stockid", product.Stock.)
+            command.Parameters.AddWithValue("stockid", product.Stock.Id);
+            command.Parameters.AddWithValue("purchaseprice", product.PurchasePrice);
+            command.Parameters.AddWithValue("saleprice", product.SalePrice);
 
+
+            connection.Open();
+            command.ExecuteNonQuery();
+            connection.Close();
         }
 
+        internal void UpdateProductInDb(Product product)
+        {
+            var connection = new MySqlConnection(_connectionString);
+            var command = new MySqlCommand(
+                "UPDATE cafe SET description = @description, purchaseprice = @purchaseprice, saleprice = @saleprice " +
+                "WHERE id = @id", connection);
+            command.Parameters.AddWithValue("id", product.Id);
+            command.Parameters.AddWithValue("description", product.Description);
+            command.Parameters.AddWithValue("purchaseprice", product.PurchasePrice);
+            command.Parameters.AddWithValue("saleprice", product.SalePrice);
 
-        /*
-         *
-         *  Random comment :thinking:
-         *  
-         *
-         *
-         */
+            connection.Open();
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
+
+        internal void DeleteProductFromDb(Product product)
+        {
+            var connection = new MySqlConnection(_connectionString);
+            var command = new MySqlCommand(
+                "DELETE FROM product " +
+                "WHERE id=@id", connection);
+            command.Parameters.AddWithValue("id", product.Id);
+
+            connection.Open();
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
     }
 }

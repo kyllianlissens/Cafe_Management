@@ -10,32 +10,43 @@ namespace Business.Domain_Layer.Repositories
     {
         internal override void AddItem(Stock entity)
         {
-            throw new NotImplementedException();
+            Items.Add(entity);
         }
 
         internal override Stock GetItem(int id)
         {
-            throw new NotImplementedException();
+            return Items.Find(entity => entity.Id == id);
         }
 
         internal override List<Stock> GetAll()
         {
-            throw new NotImplementedException();
+            return Items;
         }
 
         internal override void RemoveItem(int id)
         {
-            throw new NotImplementedException();
+            var entity = GetItem(id);
+            Items.Remove(entity);
+            //TODO Persistence.Controller.RemoveProduct();
         }
 
         internal override void Load(List<Stock> list)
         {
-            throw new NotImplementedException();
+            Items = list ?? new List<Stock>();
         }
 
         internal override Stock UpdateItem(Stock entity)
         {
-            throw new NotImplementedException();
+            var toUpdate = GetItem(entity.Id);
+            toUpdate.Description = entity.Description;
+
+            toUpdate.products = entity.products;
+            toUpdate.packages = entity.packages;
+            //TODO SALES
+            toUpdate.purchases = entity.purchases;
+            
+            //TODO Persistence.Controller.UpdateItem();
+            return GetItem(entity.Id);
         }
     }
 }
